@@ -1,0 +1,120 @@
+# Configuration for Spark Streaming Application
+# Music Streaming Pipeline - Real-time Event Processing
+
+# ============================================
+# Google Cloud Platform Configuration
+# ============================================
+gcp:
+  project_id: "sublime-blade-484910-a4"
+  dataset_id: "music_streaming_data"
+  table_id: "raw_events"
+  credentials_path: "/opt/spark/credentials/gcp-service-account-key.json"
+  # Note: In Docker container, this path is mounted from ./credentials/
+
+# ============================================
+# Kafka Configuration
+# ============================================
+kafka:
+  bootstrap_servers: "kafka:29092"  # Internal Docker network
+  # For local testing (outside Docker): "localhost:9092"
+  
+  topic: "music-streaming-events"
+  
+  # Consumer settings
+  consumer:
+    group_id: "spark-streaming-consumer"
+    auto_offset_reset: "earliest"  # earliest or latest
+    enable_auto_commit: false  # Spark manages offsets
+    max_poll_records: 500
+  
+  # Connection settings
+  connection:
+    max_poll_interval_ms: 300000  # 5 minutes
+    session_timeout_ms: 30000
+    request_timeout_ms: 40000
+
+# ============================================
+# Spark Streaming Configuration
+# ============================================
+spark:
+  app_name: "MusicStreamingPipeline"
+  
+  # Streaming settings
+  streaming:
+    trigger_interval: "30 seconds"  # Process every 30 seconds
+    checkpoint_location: "/opt/spark/checkpoints"
+    max_offsets_per_trigger: 10000  # Limit records per batch
+  
+  # BigQuery sink settings
+  bigquery:
+    write_method: "direct"  # direct or indirect (via GCS)
+    write_mode: "append"
+    temp_gcs_bucket: ""  # Leave empty for direct write
+    
+  # Performance tuning
+  performance:
+    shuffle_partitions: 10  # Adjust based on cluster size
+    default_parallelism: 10
+    executor_memory: "2g"
+    executor_cores: 2
+    driver_memory: "1g"
+
+# ============================================
+# Data Processing Configuration
+# ============================================
+processing:
+  # Data quality checks
+  data_quality:
+    drop_null_userId: false  # Keep guest users
+    drop_null_page: true
+    drop_null_ts: true
+    drop_invalid_json: true
+  
+  # Field transformations
+  transformations:
+    add_event_id: true  # Generate UUID for each event
+    extract_location: true  # Parse city, state from location string
+    add_processing_timestamp: true
+    add_processing_date: true  # For partitioning
+  
+  # Event filtering
+  filters:
+    include_pages:  # If empty, include all
+      # - "NextSong"
+      # - "Home"
+      # - "Login"
+      # - "Logout"
+    exclude_pages:  # Pages to exclude
+      - "Cancel"
+      - "Downgrade"
+
+# ============================================
+# Logging Configuration
+# ============================================
+logging:
+  level: "INFO"  # DEBUG, INFO, WARN, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Metrics logging
+  metrics:
+    log_interval: 60  # seconds
+    track_record_count: true
+    track_latency: true
+    track_errors: true
+
+# ============================================
+# Monitoring & Alerts (Future)
+# ============================================
+monitoring:
+  enabled: false
+  # prometheus:
+  #   port: 8080
+  #   path: "/metrics"
+
+# ============================================
+# Development Settings
+# ============================================
+dev:
+  debug_mode: false
+  sample_data: false  # If true, process only 10% of data
+  dry_run: false  # If true, don't write to BigQuery
