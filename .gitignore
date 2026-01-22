@@ -20,3 +20,5 @@
 .github/
 
 personal-local-docs/*
+
+.idea/*
