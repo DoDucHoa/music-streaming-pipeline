@@ -23,3 +23,4 @@ personal-local-docs/*
 
 .idea/*
 .venv/
+.idea/
