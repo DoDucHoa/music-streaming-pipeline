@@ -134,6 +134,17 @@ class EventTransformer:
             generate_id_udf = udf(lambda: generate_event_id(), StringType())
             df = df.withColumn("event_id", generate_id_udf())
         
+        # Add event_type based on kafka topic (if available)
+        if self.transformations_config.get('add_event_type', True) and 'kafka_topic' in df.columns:
+            df = df.withColumn(
+                "event_type",
+                when(col("kafka_topic") == "listen_events", "song_play")
+                .when(col("kafka_topic") == "page_view_events", "page_view")
+                .when(col("kafka_topic") == "auth_events", "authentication")
+                .when(col("kafka_topic") == "status_change_events", "status_change")
+                .otherwise("unknown")
+            )
+        
         # Add processing timestamp
         if self.transformations_config.get('add_processing_timestamp', True):
             df = df.withColumn("processed_at", current_timestamp())

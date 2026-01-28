@@ -1,9 +1,4 @@
-# Configuration for Spark Streaming Application
-# Music Streaming Pipeline - Real-time Event Processing
-
-# ============================================
 # Google Cloud Platform Configuration
-# ============================================
 gcp:
   project_id: "sublime-blade-484910-a4"
   dataset_id: "music_streaming_data"
@@ -11,14 +6,28 @@ gcp:
   credentials_path: "/opt/spark/credentials/gcp-service-account-key.json"
   # Note: In Docker container, this path is mounted from ./credentials/
 
-# ============================================
 # Kafka Configuration
-# ============================================
 kafka:
   bootstrap_servers: "kafka:29092"  # Internal Docker network
   # For local testing (outside Docker): "localhost:9092"
   
-  topic: "music-streaming-events"
+  # Topic configuration - eventsim publishes to multiple topics by event type
+  topics:
+    # Option 1: Single topic (original)
+    # single: "listen_events"
+    
+    # Option 2: Multiple topics (recommended for complete data)
+    multiple:
+      - "listen_events"        # Song plays (NextSong events with artist, song, duration)
+      - "page_view_events"     # Page navigation (Home, About, Help, etc.)
+      - "auth_events"          # Authentication events (Login, Logout)
+      - "status_change_events" # Status changes (Upgrade, Downgrade, Cancel)
+    
+    # Option 3: Pattern matching (alternative)
+    # pattern: ".*_events"  # Match all topics ending with _events
+  
+  # Active topic mode: "single", "multiple", or "pattern"
+  topic_mode: "multiple"
   
   # Consumer settings
   consumer:
@@ -33,9 +42,7 @@ kafka:
     session_timeout_ms: 30000
     request_timeout_ms: 40000
 
-# ============================================
 # Spark Streaming Configuration
-# ============================================
 spark:
   app_name: "MusicStreamingPipeline"
   
@@ -59,9 +66,7 @@ spark:
     executor_cores: 2
     driver_memory: "1g"
 
-# ============================================
 # Data Processing Configuration
-# ============================================
 processing:
   # Data quality checks
   data_quality:
@@ -73,6 +78,7 @@ processing:
   # Field transformations
   transformations:
     add_event_id: true  # Generate UUID for each event
+    add_event_type: true  # Add event_type field based on topic
     extract_location: true  # Parse city, state from location string
     add_processing_timestamp: true
     add_processing_date: true  # For partitioning
@@ -88,9 +94,7 @@ processing:
       - "Cancel"
       - "Downgrade"
 
-# ============================================
 # Logging Configuration
-# ============================================
 logging:
   level: "INFO"  # DEBUG, INFO, WARN, ERROR
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -102,18 +106,14 @@ logging:
     track_latency: true
     track_errors: true
 
-# ============================================
 # Monitoring & Alerts (Future)
-# ============================================
 monitoring:
   enabled: false
   # prometheus:
   #   port: 8080
   #   path: "/metrics"
 
-# ============================================
 # Development Settings
-# ============================================
 dev:
   debug_mode: false
   sample_data: false  # If true, process only 10% of data

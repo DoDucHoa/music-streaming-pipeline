@@ -33,8 +33,35 @@ class KafkaConsumer:
         self.spark = spark
         self.config = config
         self.bootstrap_servers = config.get('kafka_bootstrap_servers', 'kafka:29092')
-        self.topic = config.get('kafka_topic', 'music-streaming-events')
+        
+        # Support multiple topic modes
+        self.topic_mode = config.get('kafka_topic_mode', 'single')
+        self.topics = self._get_topics(config)
         self.logger = logger
+    
+    def _get_topics(self, config: Dict[str, Any]) -> str:
+        """
+        Get topic subscription string based on configuration
+        
+        Args:
+            config: Configuration dictionary
+            
+        Returns:
+            Topic string for Kafka subscription
+        """
+        mode = config.get('kafka_topic_mode', 'single')
+        
+        if mode == 'multiple':
+            # Join multiple topics with comma
+            topics_list = config.get('kafka_topics_multiple', ['listen_events'])
+            return ','.join(topics_list)
+        elif mode == 'pattern':
+            # Return pattern for subscribePattern
+            return config.get('kafka_topics_pattern', '.*_events')
+        else:  # single
+            return config.get('kafka_topics_single', 'listen_events')
+        
+        return 'listen_events'  # fallback
     
     def get_event_schema(self) -> StructType:
         """
@@ -91,16 +118,27 @@ class KafkaConsumer:
         Returns:
             Streaming DataFrame with Kafka messages
         """
-        self.logger.log_kafka_connection(self.bootstrap_servers, self.topic)
+        self.logger.log_kafka_connection(self.bootstrap_servers, self.topics)
         
         try:
-            # Read from Kafka
-            kafka_df = (
+            # Read from Kafka with appropriate subscription method
+            stream_builder = (
                 self.spark
                 .readStream
                 .format("kafka")
                 .option("kafka.bootstrap.servers", self.bootstrap_servers)
-                .option("subscribe", self.topic)
+            )
+            
+            # Subscribe based on topic mode
+            if self.topic_mode == 'pattern':
+                stream_builder = stream_builder.option("subscribePattern", self.topics)
+                self.logger.info(f"📡 Subscribing to topics with pattern: {self.topics}")
+            else:
+                stream_builder = stream_builder.option("subscribe", self.topics)
+                self.logger.info(f"📡 Subscribing to topics: {self.topics}")
+            
+            kafka_df = (
+                stream_builder
                 .option("startingOffsets", "earliest")  # For development, use 'latest' in production
                 .option("failOnDataLoss", "false")  # Handle potential data loss gracefully
                 .option("kafka.session.timeout.ms", "30000")
@@ -110,7 +148,7 @@ class KafkaConsumer:
             )
             
             self.logger.info("✅ Kafka stream created successfully",
-                           topic=self.topic,
+                           topics=self.topics,
                            servers=self.bootstrap_servers)
             
             return kafka_df
@@ -131,15 +169,20 @@ class KafkaConsumer:
         """
         event_schema = self.get_event_schema()
         
-        # Parse JSON value from Kafka
+        # Parse JSON value from Kafka and include topic name
         parsed_df = (
             kafka_df
-            .selectExpr("CAST(value AS STRING) as json_value", "timestamp as kafka_timestamp")
+            .selectExpr(
+                "CAST(value AS STRING) as json_value", 
+                "timestamp as kafka_timestamp",
+                "topic as kafka_topic"  # Include topic name for event type detection
+            )
             .select(
                 from_json(col("json_value"), event_schema).alias("event"),
-                col("kafka_timestamp")
+                col("kafka_timestamp"),
+                col("kafka_topic")
             )
-            .select("event.*", "kafka_timestamp")
+            .select("event.*", "kafka_timestamp", "kafka_topic")
         )
         
         self.logger.info("✅ Kafka messages parsed with schema")
@@ -173,11 +216,15 @@ def create_kafka_consumer(spark: SparkSession) -> KafkaConsumer:
         Configured KafkaConsumer instance
     """
     config_loader = get_config()
+    topic_config = config_loader.get_kafka_topic_config()
     
     # Prepare configuration dictionary
     config = {
         'kafka_bootstrap_servers': config_loader.get_kafka_bootstrap_servers(),
-        'kafka_topic': config_loader.get_kafka_topic(),
+        'kafka_topic_mode': topic_config['topic_mode'],
+        'kafka_topics_single': topic_config['topics_single'],
+        'kafka_topics_multiple': topic_config['topics_multiple'],
+        'kafka_topics_pattern': topic_config['topics_pattern'],
         'max_offsets_per_trigger': config_loader.get('spark.streaming.max_offsets_per_trigger', 10000)
     }
     

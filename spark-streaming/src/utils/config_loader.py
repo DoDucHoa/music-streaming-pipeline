@@ -127,9 +127,39 @@ class ConfigLoader:
         """Get Kafka bootstrap servers"""
         return self.get('kafka.bootstrap_servers', 'kafka:29092')
     
+    def get_kafka_topic_config(self) -> Dict[str, Any]:
+        """
+        Get Kafka topic configuration
+        
+        Returns:
+            Dictionary with topic mode and topic list/pattern
+        """
+        kafka_config = self.get_kafka_config()
+        topic_mode = kafka_config.get('topic_mode', 'single')
+        
+        topics_config = kafka_config.get('topics', {})
+        
+        return {
+            'topic_mode': topic_mode,
+            'topics_single': topics_config.get('single', 'listen_events'),
+            'topics_multiple': topics_config.get('multiple', ['listen_events']),
+            'topics_pattern': topics_config.get('pattern', '.*_events')
+        }
+    
     def get_kafka_topic(self) -> str:
-        """Get Kafka topic name"""
-        return self.get('kafka.topic', 'music-streaming-events')
+        """
+        Get Kafka topic name (for backward compatibility)
+        Returns comma-separated topics for multiple mode
+        """
+        topic_config = self.get_kafka_topic_config()
+        mode = topic_config['topic_mode']
+        
+        if mode == 'multiple':
+            return ','.join(topic_config['topics_multiple'])
+        elif mode == 'pattern':
+            return topic_config['topics_pattern']
+        else:
+            return topic_config['topics_single']
     
     def get_bigquery_table(self) -> str:
         """
