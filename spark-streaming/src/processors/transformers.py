@@ -110,12 +110,13 @@ class EventTransformer:
         )
         
         # Convert registration from milliseconds to timestamp (if exists)
-        df = df.withColumn(
-            "registration",
-            when(col("registration").isNotNull(),
-                 (col("registration") / 1000).cast(TimestampType())
-            ).otherwise(None)
-        )
+        if 'registration' in df.columns:
+            df = df.withColumn(
+                "registration",
+                when(col("registration").isNotNull(),
+                     (col("registration") / 1000).cast(TimestampType())
+                ).otherwise(None)
+            )
         
         return df
     

@@ -4,7 +4,7 @@ Common utility functions for the Spark Streaming application
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Any, Dict
 import json
 
@@ -14,7 +14,7 @@ def generate_event_id() -> str:
 
 
 def get_current_timestamp() -> datetime:
-    return datetime.utcnow()
+    return datetime.now(timezone.utc)
 
 
 def parse_json_safe(json_str: str) -> Optional[Dict[str, Any]]:
@@ -60,12 +60,12 @@ def convert_timestamp_ms_to_datetime(ts_ms: Optional[int]) -> Optional[datetime]
     Returns:
         Datetime object or None if invalid
     """
-    if ts_ms is None:
+    if ts_ms is None or ts_ms < 0:
         return None
     
     try:
         return datetime.fromtimestamp(ts_ms / 1000.0)
-    except (ValueError, OverflowError):
+    except (ValueError, OverflowError, OSError):
         return None
 
 
@@ -136,7 +136,7 @@ def safe_int(value: Any) -> Optional[int]:
         Int value or None if conversion fails
     """
     try:
-        return int(value)
+        return int(float(value))
     except (ValueError, TypeError):
         return None
 

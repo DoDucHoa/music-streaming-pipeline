@@ -46,6 +46,11 @@ class ConfigLoader:
         try:
             with open(self.config_path, 'r') as f:
                 self.config = yaml.safe_load(f)
+            
+            # Handle empty config file
+            if self.config is None:
+                self.config = {}
+            
             print(f"✅ Configuration loaded from: {self.config_path}")
         except FileNotFoundError:
             raise FileNotFoundError(
