@@ -325,8 +325,20 @@ class EventTransformer:
         
         # Select only columns that exist
         existing_columns = [c for c in columns if c in df.columns]
+        df = df.select(*existing_columns)
         
-        return df.select(*existing_columns)
+        # Rename columns to match BigQuery schema exactly
+        # BigQuery schema uses: session_id, event_id (snake_case)
+        # But userId, firstName, lastName, userAgent, itemInSession (camelCase)
+        column_mapping = {
+            "sessionId": "session_id",  # BigQuery uses session_id
+        }
+        
+        for old_name, new_name in column_mapping.items():
+            if old_name in df.columns:
+                df = df.withColumnRenamed(old_name, new_name)
+        
+        return df
 
 
 def create_transformer(config: Dict[str, Any]) -> EventTransformer:

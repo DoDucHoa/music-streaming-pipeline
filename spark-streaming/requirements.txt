@@ -1,24 +1,11 @@
-pyspark==3.5.0
+# Core dependencies (PySpark already included in base image)
 google-cloud-bigquery==3.14.1
 google-cloud-bigquery-storage==2.24.0
 google-auth==2.25.2
-kafka-python==2.0.2
-confluent-kafka==2.3.0
 pyyaml==6.0.1
 python-dotenv==1.0.0
 jsonschema==4.20.0
-pandas==2.1.4  # For data manipulation and testing
-pyarrow==14.0.2  # Required for Spark-Pandas conversion
-colorlog==6.8.0  # Colored console logging
-python-json-logger==2.0.7  # Structured JSON logging
+colorlog==6.8.0
+python-json-logger==2.0.7
 python-dateutil==2.8.2
 pytz==2023.3.post1
-pytest==7.4.3
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-faker==21.0.0  # For generating test data
-black==23.12.1  # Code formatting
-flake8==7.0.0  # Linting
-mypy==1.7.1  # Type checking
-sphinx==7.2.6
-sphinx-rtd-theme==2.0.0

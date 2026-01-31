@@ -41,5 +41,75 @@ services:
       --kafkaBrokerList kafka:29092
       --continuous
 
+  spark-streaming:
+    build:
+      context: ./spark-streaming
+      dockerfile: docker/Dockerfile
+    container_name: spark-streaming
+    depends_on:
+      - kafka
+    environment:
+      # GCP Configuration
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - BIGQUERY_DATASET=${BIGQUERY_DATASET:-music_streaming_data}
+      - BIGQUERY_TABLE=${BIGQUERY_TABLE:-raw_events}
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/spark-app/credentials/gcp-service-account-key.json
+      
+      # Kafka Configuration
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
+      - KAFKA_TOPIC=${KAFKA_TOPIC:-music-streaming-events}
+      - KAFKA_READY_TIMEOUT=60
+      
+      # Spark Configuration
+      - SPARK_MASTER=${SPARK_MASTER:-local[*]}
+      - SPARK_APP_NAME=MusicStreamingPipeline
+      - SPARK_EXECUTOR_MEMORY=${SPARK_EXECUTOR_MEMORY:-2g}
+      - SPARK_DRIVER_MEMORY=${SPARK_DRIVER_MEMORY:-2g}
+      - SPARK_LOG_LEVEL=${SPARK_LOG_LEVEL:-WARN}
+      
+      # Application Configuration
+      - CONFIG_PATH=/opt/spark-app/config/config.yaml
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DRY_RUN=${DRY_RUN:-false}
+    
+    volumes:
+      # Mount GCP credentials (REQUIRED - update path on host)
+      - ./spark-streaming/credentials:/opt/spark-app/credentials:ro
+      
+      # Mount checkpoints directory for stream processing state
+      - spark-checkpoints:/opt/spark-app/checkpoints
+      
+      # Mount logs directory for debugging
+      - spark-logs:/opt/spark-app/logs
+      
+      # Optional: Mount config for live updates during development
+      # - ./spark-streaming/config:/opt/spark-app/config:ro
+      
+      # Optional: Mount source code for development (hot reload)
+      # - ./spark-streaming/src:/opt/spark-app/src:ro
+    
+    ports:
+      # Spark UI
+      - "4040:4040"
+      # Spark History Server (if enabled)
+      - "18080:18080"
+    
+    networks:
+      - default
+    
+    restart: unless-stopped
+    
+    # Resource limits (adjust based on your system)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+
 volumes:
   kafka-data:
+  spark-checkpoints:
+  spark-logs:

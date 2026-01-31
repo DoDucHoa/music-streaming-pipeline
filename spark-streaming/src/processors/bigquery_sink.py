@@ -38,6 +38,7 @@ class BigQuerySink:
         self.table = config.get('bigquery_table')
         self.temp_bucket = config.get('temp_gcs_bucket', '')
         self.write_method = config.get('write_method', 'direct')
+        self.credentials_path = config.get('gcp_credentials_path', '/opt/spark-app/credentials/gcp-service-account-key.json')
         
         # Streaming configuration
         self.checkpoint_location = config.get('checkpoint_location', '/opt/spark/checkpoints')
@@ -67,15 +68,20 @@ class BigQuerySink:
                 df.show(5, truncate=False)
                 return
             
-            # Write to BigQuery
-            (
-                df.write
-                .format("bigquery")
-                .option("table", self.table)
-                .option("temporaryGcsBucket", self.temp_bucket) if self.temp_bucket else df.write
-                .mode("append")
-                .save()
-            )
+            # Write to BigQuery with direct write (no GCS bucket needed for small batches)
+            writer = (df.write
+                     .format("bigquery")
+                     .option("table", self.table)
+                     .option("credentialsFile", self.credentials_path)
+                     .option("writeMethod", "direct")  # Use direct write, no GCS needed
+                     .mode("append"))
+            
+            # Add temporary GCS bucket if specified (for indirect write)
+            if self.temp_bucket and self.write_method == "indirect":
+                writer = writer.option("temporaryGcsBucket", self.temp_bucket)
+            
+            # Execute write
+            writer.save()
             
             self.logger.info(f"✅ Batch {batch_id}: Successfully wrote {record_count} records to BigQuery")
             
