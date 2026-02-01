@@ -19,7 +19,7 @@
 
 .github/
 
-personal-local-docs/*
+docs/*
 
 .idea/*
 .venv/
