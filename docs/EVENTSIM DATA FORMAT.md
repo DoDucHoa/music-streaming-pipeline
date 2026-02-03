@@ -385,19 +385,26 @@ When ingesting into BigQuery, the schema maps as follows:
 ### Kafka Consumer Command
 
 ```bash
-# Consume listen events
-docker exec kafka kafka-console-consumer \
-  --bootstrap-server localhost:9092 \
+# ⚠️ Windows: Use bash -c wrapper to avoid hanging!
+
+# Consume listen events (✅ Windows-safe)
+docker exec kafka bash -c "kafka-console-consumer \
+  --bootstrap-server kafka:29092 \
   --topic listen_events \
   --from-beginning \
-  --max-messages 10
+  --max-messages 10 \
+  --timeout-ms 5000"
 
-# Consume page view events
-docker exec kafka kafka-console-consumer \
-  --bootstrap-server localhost:9092 \
+# Consume page view events (✅ Windows-safe)
+docker exec kafka bash -c "kafka-console-consumer \
+  --bootstrap-server kafka:29092 \
   --topic page_view_events \
   --from-beginning \
-  --max-messages 10
+  --max-messages 10 \
+  --timeout-ms 5000"
+
+# ❌ NEVER use direct exec on Windows (will hang):
+# docker exec kafka kafka-console-consumer ... # ❌ WILL HANG!
 ```
 
 ### Event Statistics
@@ -440,11 +447,10 @@ The Spark Streaming application consumes from these topics and:
 - **BigQuery Schema**: [spark-streaming/config/bigquery_schema.sql](../spark-streaming/config/bigquery_schema.sql)
 - **Spark Configuration**: [spark-streaming/config/config.yaml](../spark-streaming/config/config.yaml)
 - **Docker Compose**: [docker-compose.yml](../docker-compose.yml)
-- **Original eventsim**: https://github.com/Interana/eventsim
-- **Docker eventsim**: https://github.com/viirya/eventsim
+- **Original eventsim**: https://github.com/Interana/eventsim (source code used in this project)
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: January 28, 2026  
+**Document Version**: 1.1  
+**Last Updated**: February 3, 2026  
 **Author**: Music Streaming Pipeline Project
