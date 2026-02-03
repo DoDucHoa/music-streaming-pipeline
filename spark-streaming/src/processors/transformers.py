@@ -214,6 +214,33 @@ class EventTransformer:
         
         return df
     
+    def add_song_length(self, df: DataFrame) -> DataFrame:
+        """
+        Add random song length for NextSong events
+        eventsim doesn't generate song durations, so we add realistic values (3-5 minutes)
+        
+        Args:
+            df: Input DataFrame
+            
+        Returns:
+            DataFrame with length field populated for NextSong events
+        """
+        from pyspark.sql.functions import rand, round as spark_round
+        
+        # Generate random song length between 180-300 seconds (3-5 minutes) for NextSong events
+        # This provides realistic listening duration metrics
+        df = df.withColumn(
+            "length",
+            when(
+                (col("page") == "NextSong") & (col("length").isNull()),
+                spark_round(180 + rand() * 120, 0)  # Random between 180-300 seconds
+            ).otherwise(col("length"))
+        )
+        
+        self.logger.info("✅ Added random song lengths (3-5 min) for NextSong events without length")
+        
+        return df
+    
     def add_raw_event_json(self, df: DataFrame) -> DataFrame:
         """
         Add raw event as JSON string for debugging
@@ -256,10 +283,13 @@ class EventTransformer:
         # 5. Clean string fields
         df = self.clean_string_fields(df)
         
-        # 6. Add processing metadata
+        # 6. Add song length for NextSong events (eventsim doesn't generate this)
+        df = self.add_song_length(df)
+        
+        # 7. Add processing metadata
         df = self.add_processing_metadata(df)
         
-        # 7. Add raw event JSON (optional)
+        # 8. Add raw event JSON (optional)
         df = self.add_raw_event_json(df)
         
         self.logger.info("✅ Data transformations completed")
