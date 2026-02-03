@@ -3,7 +3,7 @@ gcp:
   project_id: "sublime-blade-484910-a4"
   dataset_id: "music_streaming_data"
   table_id: "raw_events"
-  credentials_path: "/opt/spark/credentials/gcp-service-account-key.json"
+  credentials_path: "/opt/spark-app/credentials/gcp-service-account-key.json"
   # Note: In Docker container, this path is mounted from ./credentials/
 
 # Kafka Configuration
