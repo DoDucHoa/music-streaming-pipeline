@@ -28,17 +28,23 @@ services:
     volumes:
       - kafka-data:/var/lib/kafka/data
 
-  eventsim:
-    image: eventsim:1.0
-    container_name: eventsim
+  python-event-generator:
+    build:
+      context: ./python-event-generator
+      dockerfile: Dockerfile
+    container_name: python-event-generator
     depends_on:
       - kafka
+    environment:
+      - KAFKA_BROKERS=kafka:29092
+      - KAFKA_TOPIC=listen_events
+      - NUM_USERS=1000
     command: >
-      -c examples/example-config.json
-      --start-time "2024-01-01T00:00:00"
-      --end-time "2024-12-31T23:59:59"
+      python -u event_generator.py
       --nusers 1000
-      --kafkaBrokerList kafka:29092
+      --kafka-broker-list kafka:29092
+      --kafka-topic listen_events
+      --start-time 2024-01-01T00:00:00
       --continuous
 
   spark-streaming:

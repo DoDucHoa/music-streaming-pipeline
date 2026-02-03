@@ -14,20 +14,20 @@ kafka:
   # Topic configuration - eventsim publishes to multiple topics by event type
   topics:
     # Option 1: Single topic (original)
-    # single: "listen_events"
+    single: "listen_events"
     
     # Option 2: Multiple topics (recommended for complete data)
-    multiple:
-      - "listen_events"        # Song plays (NextSong events with artist, song, duration)
-      - "page_view_events"     # Page navigation (Home, About, Help, etc.)
-      - "auth_events"          # Authentication events (Login, Logout)
-      - "status_change_events" # Status changes (Upgrade, Downgrade, Cancel)
+    # multiple:
+    #   - "listen_events"        # Song plays (NextSong events with artist, song, duration)
+    #   - "page_view_events"     # Page navigation (Home, About, Help, etc.)
+    #   - "auth_events"          # Authentication events (Login, Logout)
+    #   - "status_change_events" # Status changes (Upgrade, Downgrade, Cancel)
     
     # Option 3: Pattern matching (alternative)
     # pattern: ".*_events"  # Match all topics ending with _events
   
   # Active topic mode: "single", "multiple", or "pattern"
-  topic_mode: "multiple"
+  topic_mode: "single"
   
   # Consumer settings
   consumer:
