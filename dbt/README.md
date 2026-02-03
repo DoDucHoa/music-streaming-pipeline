@@ -4,7 +4,7 @@ This directory contains the dbt (data build tool) project for transforming raw s
 
 ## 📁 Project Structure
 
-```
+```text
 dbt/
 ├── models/
 │   ├── staging/               # Clean and standardize raw data
@@ -41,7 +41,7 @@ dbt/
 
 ## 🎯 Data Flow
 
-```
+```text
 Raw Data (Spark)          Staging              Intermediate              Marts
 ─────────────────         ───────              ────────────              ─────
 
@@ -165,6 +165,7 @@ dbt docs serve
 **Purpose**: Core analytical tables (facts and dimensions).
 
 #### Fact Tables
+
 - **`fct_song_plays`**: One row per song play with all relevant dimensions
   - Partitioned by `event_date`
   - Clustered by `user_id`, `artist`, `song`
@@ -176,6 +177,7 @@ dbt docs serve
   - Incremental
 
 #### Dimension Tables
+
 - **`dim_users`**: User information (latest state)
 - **`dim_songs`**: Unique songs and artists
 
@@ -213,6 +215,7 @@ This means each run reprocesses the last 3 days to handle late-arriving data.
 ### BigQuery Optimization
 
 Models are optimized for BigQuery:
+
 - **Partitioning**: By date for efficient time-based queries
 - **Clustering**: By common filter columns
 - **Incremental loads**: Reduce processing time and cost
@@ -295,6 +298,7 @@ dbt run --select fct_song_plays+
 ## 📊 Key Metrics Available
 
 ### Daily Metrics (`agg_daily_metrics`)
+
 - Total song plays
 - Unique users
 - Total sessions
@@ -303,11 +307,13 @@ dbt run --select fct_song_plays+
 - Most active users
 
 ### Hourly Activity (`agg_hourly_activity`)
+
 - Active users per hour
 - Song plays per hour
 - Peak usage times
 
 ### User Summary (`agg_user_summary`)
+
 - User lifetime value metrics
 - Total plays per user
 - Favorite artists/songs
