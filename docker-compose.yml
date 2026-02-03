@@ -108,6 +108,33 @@ services:
         reservations:
           cpus: '2'
           memory: 2G
+  
+  # dbt Analytics Service (optional - run manually as needed)
+  # Usage: docker-compose run --rm dbt run
+  #        docker-compose run --rm dbt test
+  dbt:
+    build:
+      context: ./dbt
+      dockerfile: docker/Dockerfile
+    container_name: dbt-music-streaming
+    profiles: ["analytics"]  # Optional profile - only start when explicitly requested
+    volumes:
+      # Mount dbt project for development
+      - ./dbt/models:/usr/app/models
+      - ./dbt/macros:/usr/app/macros
+      - ./dbt/tests:/usr/app/tests
+      
+      # Mount GCP credentials (same as Spark)
+      - ./spark-streaming/credentials:/credentials:ro
+      
+      # Mount output directories
+      - ./dbt/target:/usr/app/target
+      - ./dbt/logs:/usr/app/logs
+    
+    environment:
+      - DBT_PROFILES_DIR=/usr/app
+      - GOOGLE_APPLICATION_CREDENTIALS=/credentials/gcp-service-account-key.json
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
 
 volumes:
   kafka-data:
