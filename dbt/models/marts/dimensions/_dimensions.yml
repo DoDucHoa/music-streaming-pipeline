@@ -12,25 +12,22 @@ models:
     
     columns:
       - name: user_id
-        description: "Unique user identifier (Primary Key)"
+        description: "Unique user identifier (Primary Key). Empty string for guest users."
         tests:
           - unique
           - not_null
       
       - name: first_name
-        description: "User first name"
-        tests:
-          - not_null
+        description: "User first name (NULL for guest users)"
+        # No not_null test - guest users have NULL names
       
       - name: last_name
-        description: "User last name"
-        tests:
-          - not_null
+        description: "User last name (NULL for guest users)"
+        # No not_null test - guest users have NULL names
       
       - name: full_name
-        description: "Concatenated first + last name"
-        tests:
-          - not_null
+        description: "Concatenated first + last name (NULL for guest users)"
+        # No not_null test - guest users have NULL names
       
       - name: gender
         description: "User gender"
