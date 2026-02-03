@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  dbt:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: dbt-music-streaming
+    volumes:
+      # Mount dbt project (for development)
+      - ./models:/usr/app/models
+      - ./macros:/usr/app/macros
+      - ./tests:/usr/app/tests
+      
+      # Mount GCP credentials
+      - ../spark-streaming/credentials:/credentials:ro
+      
+      # Mount target directory (compiled SQL, logs)
+      - ./target:/usr/app/target
+      - ./logs:/usr/app/logs
+    
+    environment:
+      - DBT_PROFILES_DIR=/usr/app
+      - GOOGLE_APPLICATION_CREDENTIALS=/credentials/gcp-service-account-key.json
+    
+    # No default command - run interactively
+    # Usage: docker-compose run --rm dbt run
+    #        docker-compose run --rm dbt test
+    #        docker-compose run --rm dbt docs generate
