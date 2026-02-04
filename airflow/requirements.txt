@@ -1,0 +1,19 @@
+# Apache Airflow Requirements
+# Phase 6 - Orchestration Layer
+
+# Core Airflow
+apache-airflow==2.8.1
+apache-airflow-providers-docker==3.10.0
+
+# Database (PostgreSQL)
+apache-airflow-providers-postgres==5.10.1
+
+# Email support
+apache-airflow-providers-smtp==1.6.1
+
+# Google Cloud Platform (BigQuery monitoring)
+apache-airflow-providers-google==10.15.0
+
+# Utilities
+pendulum==2.1.2
+python-dotenv==1.0.0

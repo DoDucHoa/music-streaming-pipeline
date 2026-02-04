@@ -13,7 +13,9 @@ services:
       - ./tests:/usr/app/tests
       
       # Mount GCP credentials
-      - ../spark-streaming/credentials:/credentials:ro
+      # Use relative path from project root (../spark-streaming/credentials)
+      # This is portable - works on any machine as long as project structure is maintained
+      - ${CREDENTIALS_PATH:-../spark-streaming/credentials}:/credentials:ro
       
       # Mount target directory (compiled SQL, logs)
       - ./target:/usr/app/target
