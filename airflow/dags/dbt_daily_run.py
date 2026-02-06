@@ -26,7 +26,7 @@ def dbt_cmd(command: str) -> str:
 default_args = {
     'owner': 'data-engineering',
     'depends_on_past': False,
-    'email': ['${AIRFLOW_ALERT_EMAIL}'],
+    'email': [os.getenv('AIRFLOW_ALERT_EMAIL', 'admin@example.com')],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 2,
@@ -56,7 +56,6 @@ with DAG(
     dbt_debug = BashOperator(
         task_id='dbt_debug',
         bash_command=dbt_cmd('debug'),
-        cwd='/opt/airflow',
     )
 
     # Task Group: Run dbt models by layer
@@ -66,35 +65,30 @@ with DAG(
         run_staging = BashOperator(
             task_id='run_staging_models',
             bash_command=dbt_cmd('run --select staging'),
-            cwd='/opt/airflow',
         )
 
         # Intermediate layer
         run_intermediate = BashOperator(
             task_id='run_intermediate_models',
             bash_command=dbt_cmd('run --select intermediate'),
-            cwd='/opt/airflow',
         )
 
         # Core facts and dimensions
         run_core = BashOperator(
             task_id='run_core_models',
             bash_command=dbt_cmd('run --select marts.core'),
-            cwd='/opt/airflow',
         )
 
         # Dimensions
         run_dimensions = BashOperator(
             task_id='run_dimension_models',
             bash_command=dbt_cmd('run --select marts.dimensions'),
-            cwd='/opt/airflow',
         )
 
         # Analytics aggregations
         run_analytics = BashOperator(
             task_id='run_analytics_models',
             bash_command=dbt_cmd('run --select marts.analytics'),
-            cwd='/opt/airflow',
         )
 
         # Define layer dependencies
@@ -105,20 +99,18 @@ with DAG(
     dbt_test = BashOperator(
         task_id='dbt_test_all',
         bash_command=dbt_cmd('test'),
-        cwd='/opt/airflow',
     )
 
     # Task 4: Generate dbt docs
     dbt_docs = BashOperator(
         task_id='dbt_docs_generate',
         bash_command=dbt_cmd('docs generate'),
-        cwd='/opt/airflow',
     )
 
     # Task 5: Success notification
     success_email = EmailOperator(
         task_id='send_success_email',
-        to='${AIRFLOW_ALERT_EMAIL}',
+        to=os.getenv('AIRFLOW_ALERT_EMAIL', 'admin@example.com'),
         subject='✅ dbt Daily Run Completed Successfully',
         html_content="""
         <h3>dbt Daily Run Summary</h3>

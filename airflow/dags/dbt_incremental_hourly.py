@@ -7,6 +7,7 @@ Optimized for near-real-time analytics updates
 """
 
 from datetime import datetime, timedelta
+import os
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.email import EmailOperator
@@ -24,7 +25,7 @@ def dbt_cmd(command: str) -> str:
 default_args = {
     'owner': 'data-engineering',
     'depends_on_past': False,
-    'email': ['${AIRFLOW_ALERT_EMAIL}'],
+    'email': [os.getenv('AIRFLOW_ALERT_EMAIL', 'admin@example.com')],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 3,
