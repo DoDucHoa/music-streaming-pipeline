@@ -24,7 +24,7 @@ def dbt_cmd(command: str) -> str:
 
 # Default arguments
 default_args = {
-    'owner': 'data-engineering',
+    'owner': 'Duc Hoa Do',
     'depends_on_past': False,
     'email': [os.getenv('AIRFLOW_ALERT_EMAIL', 'admin@example.com')],
     'email_on_failure': True,
