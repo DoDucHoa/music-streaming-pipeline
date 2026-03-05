@@ -83,9 +83,6 @@ cleaned AS (
     event_id IS NOT NULL
     AND ts IS NOT NULL
     AND page IS NOT NULL
-    -- Keep data from reasonable date range (eventsim generates 2024 data)
-    AND DATE(ts) >= '2024-01-01'
-    AND DATE(ts) <= '2024-12-31'
 )
 
 SELECT * FROM cleaned

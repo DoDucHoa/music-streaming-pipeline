@@ -16,7 +16,7 @@ music_streaming:
       keyfile: /credentials/gcp-service-account-key.json
       
       # Optional: Use these for better performance
-      maximum_bytes_billed: 1000000000  # 1 GB limit
+      maximum_bytes_billed: 2000000000  # 2 GB limit (increased for large datasets)
       
     prod:
       type: bigquery

@@ -11,6 +11,8 @@ services:
       - ./models:/usr/app/models
       - ./macros:/usr/app/macros
       - ./tests:/usr/app/tests
+      - ./profiles.yml:/usr/app/profiles.yml:ro
+      - ./dbt_project.yml:/usr/app/dbt_project.yml:ro
       
       # Mount GCP credentials
       # Use relative path from project root (../spark-streaming/credentials)

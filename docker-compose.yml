@@ -38,13 +38,13 @@ services:
     environment:
       - KAFKA_BROKERS=kafka:29092
       - KAFKA_TOPIC=listen_events
-      - NUM_USERS=1000
+      - NUM_USERS=5000
     command: >
       python -u event_generator.py
-      --nusers 1000
+      --nusers 5000
       --kafka-broker-list kafka:29092
       --kafka-topic listen_events
-      --start-time 2024-01-01T00:00:00
+      --start-time 2025-01-01T00:00:00
       --continuous
 
   spark-streaming:

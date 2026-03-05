@@ -50,7 +50,7 @@ spark:
   streaming:
     trigger_interval: "30 seconds"  # Process every 30 seconds
     checkpoint_location: "/opt/spark/checkpoints"
-    max_offsets_per_trigger: 10000  # Limit records per batch
+    max_offsets_per_trigger: 50000  # Limit records per batch
   
   # BigQuery sink settings
   bigquery:
