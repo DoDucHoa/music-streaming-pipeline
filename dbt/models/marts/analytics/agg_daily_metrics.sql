@@ -94,18 +94,20 @@ daily_sessions AS (
 ),
 
 daily_users AS (
+  -- Count distinct registered users active each day (not guests)
   SELECT
-    last_activity_date AS metric_date,
-    COUNT(*) AS total_registered_users,
-    SUM(CASE WHEN subscription_level = 'free' THEN 1 ELSE 0 END) AS free_users,
-    SUM(CASE WHEN subscription_level = 'paid' THEN 1 ELSE 0 END) AS paid_users
-  FROM {{ ref('dim_users') }}
+    event_date AS metric_date,
+    COUNT(DISTINCT user_id) AS total_registered_users,
+    COUNT(DISTINCT CASE WHEN subscription_level = 'free' THEN user_id END) AS free_users,
+    COUNT(DISTINCT CASE WHEN subscription_level = 'paid' THEN user_id END) AS paid_users
+  FROM {{ ref('stg_events') }}
+  WHERE user_id IS NOT NULL  -- Exclude guest users
   
   {% if is_incremental() %}
-    WHERE last_activity_date >= DATE_SUB(CURRENT_DATE(), INTERVAL {{ var('incremental_lookback_days', 3) }} DAY)
+    AND event_date >= DATE_SUB(CURRENT_DATE(), INTERVAL {{ var('incremental_lookback_days', 3) }} DAY)
   {% endif %}
   
-  GROUP BY last_activity_date
+  GROUP BY event_date
 ),
 
 daily_metrics AS (
