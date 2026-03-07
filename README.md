@@ -2,7 +2,7 @@
 
 > **End-to-end real-time data engineering pipeline** processing streaming events from ingestion to analytics-ready insights
 
-A production-grade data platform that simulates a music streaming service, processes millions of user events in real-time, and transforms raw data into actionable business intelligence using modern data engineering tools.
+A data platform that simulates a music streaming service, processes millions of user events in real-time, and transforms raw data into actionable business intelligence using modern data engineering tools.
 
 ---
 
@@ -13,6 +13,7 @@ This project demonstrates a complete data engineering solution for a music strea
 **Business Problem**: Music streaming platforms generate millions of user events daily (song plays, skips, sessions, etc.). This pipeline processes these events in real-time, stores them efficiently in a cloud data warehouse, and transforms them into analytics-ready tables for business intelligence.
 
 **Solution**: An automated, scalable pipeline that:
+
 - Generates realistic user behavior events (1000+ concurrent users)
 - Streams events through Apache Kafka for reliable message delivery
 - Processes data in real-time using Apache Spark Structured Streaming
@@ -35,22 +36,22 @@ This project demonstrates a complete data engineering solution for a music strea
 
 ## 🛠️ Technologies Used
 
-| Layer | Technologies |
-|-------|-------------|
-| **Event Generation** | Python, Faker library, Kafka Producer API |
-| **Message Streaming** | Apache Kafka, Zookeeper |
-| **Real-time Processing** | Apache Spark 3.5 (Structured Streaming, PySpark) |
-| **Data Warehouse** | Google BigQuery (partitioned & clustered tables) |
-| **Analytics Transformation** | dbt (SQL, Jinja templating) |
-| **Orchestration** | Apache Airflow 2.8 (LocalExecutor, PostgreSQL) |
-| **Infrastructure** | Docker, Docker Compose |
-| **Cloud Platform** | Google Cloud Platform (BigQuery, IAM) |
+| Layer                        | Technologies                                     |
+| ---------------------------- | ------------------------------------------------ |
+| **Event Generation**         | Python, Faker library, Kafka Producer API        |
+| **Message Streaming**        | Apache Kafka, Zookeeper                          |
+| **Real-time Processing**     | Apache Spark 3.5 (Structured Streaming, PySpark) |
+| **Data Warehouse**           | Google BigQuery (partitioned & clustered tables) |
+| **Analytics Transformation** | dbt (SQL, Jinja templating)                      |
+| **Orchestration**            | Apache Airflow 2.8 (LocalExecutor, PostgreSQL)   |
+| **Infrastructure**           | Docker, Docker Compose                           |
+| **Cloud Platform**           | Google Cloud Platform (BigQuery, IAM)            |
 
 ---
 
 ## 🏗️ Architecture
 
-```
+```plain text
 Python Generator → Kafka → Spark Streaming → BigQuery → dbt → Airflow → Analytics/BI
 ```
 
@@ -67,12 +68,14 @@ The pipeline follows a modern data platform architecture:
 ## ✨ Key Features
 
 ### Real-time Event Processing
+
 - Processes 3,000-3,500 events per batch (30-second intervals)
 - Handles multiple event types: song plays, page views, authentication, status changes
 - Data quality filters and validation rules
 - Fault-tolerant with checkpoint recovery
 
 ### Analytics Transformation (dbt)
+
 - **4-layer architecture**: Staging → Intermediate → Facts/Dimensions → Aggregations
 - **Incremental materialization** with 3-day lookback for late-arriving data
 - **Session analysis**: User engagement metrics, session duration, skip rates
@@ -80,12 +83,14 @@ The pipeline follows a modern data platform architecture:
 - **User segmentation**: Power users, casual listeners, conversion tracking
 
 ### Automated Orchestration (Airflow)
+
 - **Daily full refresh** (2:00 AM): Complete model rebuild
 - **Hourly incremental** (every hour): Fresh metrics for dashboards
 - **Data quality suite** (every 6 hours): Automated testing
 - **Email alerts**: Failure notifications via SMTP
 
 ### Production-Ready Infrastructure
+
 - Containerized deployment with Docker Compose
 - Partitioned BigQuery tables for query performance
 - Clustered columns for optimal filtering
@@ -97,6 +102,7 @@ The pipeline follows a modern data platform architecture:
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Docker Desktop installed and running
 - Google Cloud Platform account (free tier supported)
 - 8GB RAM, 20GB disk space
@@ -104,12 +110,14 @@ The pipeline follows a modern data platform architecture:
 ### Setup (5 minutes)
 
 1. **Clone the repository**
+
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/DoDucHoa/music-streaming-pipeline.git
    cd music-streaming-pipeline
    ```
 
 2. **Configure environment**
+
    ```bash
    # Copy template and add your GCP project ID
    cp .env.template .env
@@ -118,9 +126,9 @@ The pipeline follows a modern data platform architecture:
 
 3. **Add GCP credentials**
    - Place your service account key at `spark-streaming/credentials/gcp-service-account-key.json`
-   - See [GCP Setup Guide](docs/personal-local-docs/GCP_SETUP_GUIDE.md) for details
 
 4. **Start the pipeline**
+
    ```bash
    # Start all services
    docker compose up -d
@@ -130,6 +138,7 @@ The pipeline follows a modern data platform architecture:
    ```
 
 5. **Access interfaces**
+
    - Spark UI: http://localhost:4040 (streaming jobs)
    - Airflow UI: http://localhost:8080 (username: admin / password: admin)
    - BigQuery Console: https://console.cloud.google.com/bigquery
