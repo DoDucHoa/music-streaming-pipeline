@@ -1,0 +1,11 @@
+# Core dependencies (PySpark already included in base image)
+google-cloud-bigquery==3.14.1
+google-cloud-bigquery-storage==2.24.0
+google-auth==2.25.2
+pyyaml==6.0.1
+python-dotenv==1.0.0
+jsonschema==4.20.0
+colorlog==6.8.0
+python-json-logger==2.0.7
+python-dateutil==2.8.2
+pytz==2023.3.post1

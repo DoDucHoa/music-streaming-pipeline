@@ -1,0 +1,152 @@
+# dbt Project Configuration
+# Music Streaming Analytics Pipeline
+
+name: 'music_streaming_analytics'
+version: '1.0.0'
+config-version: 2
+
+# Project profile (connects to BigQuery)
+profile: 'music_streaming'
+
+# Directories
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Compiled files
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Model configurations
+models:
+  music_streaming_analytics:
+    +materialized: view
+    +on_schema_change: "fail"
+    
+    # Staging layer - Views for fast development
+    staging:
+      +materialized: view
+      +tags: ["staging"]
+      +docs:
+        node_color: "#228B22"  # Forest green
+    
+    # Intermediate layer - Ephemeral (not materialized, inline CTEs)
+    intermediate:
+      +materialized: ephemeral
+      +tags: ["intermediate"]
+      +docs:
+        node_color: "#4682B4"  # Steel blue
+    
+    # Marts layer - Tables for analytics
+    marts:
+      +materialized: table
+      +tags: ["marts"]
+      
+      # Core fact and dimension tables
+      core:
+        +tags: ["core", "marts"]
+        +docs:
+          node_color: "#DC143C"  # Crimson
+        
+        # Fact tables - partitioned and clustered for performance
+        fct_song_plays:
+          +materialized: incremental
+          +unique_key: event_id
+          +on_schema_change: "append_new_columns"
+          +partition_by:
+            field: event_date
+            data_type: date
+            granularity: day
+          +cluster_by: ["user_id", "artist", "song"]
+          +incremental_strategy: insert_overwrite
+        
+        fct_sessions:
+          +materialized: incremental
+          +unique_key: session_id
+          +on_schema_change: "append_new_columns"
+          +partition_by:
+            field: session_date
+            data_type: date
+            granularity: day
+          +cluster_by: ["user_id", "session_date"]
+          +incremental_strategy: insert_overwrite
+      
+      # Dimension tables
+      dimensions:
+        +tags: ["dimensions", "marts"]
+        +docs:
+          node_color: "#FFD700"  # Gold
+        
+        dim_users:
+          +materialized: table
+        
+        dim_songs:
+          +materialized: table
+      
+      # Analytics aggregations
+      analytics:
+        +tags: ["analytics", "marts"]
+        +docs:
+          node_color: "#9370DB"  # Medium purple
+        
+        agg_daily_metrics:
+          +materialized: incremental
+          +unique_key: metric_date
+          +on_schema_change: "append_new_columns"
+          +partition_by:
+            field: metric_date
+            data_type: date
+            granularity: day
+          +incremental_strategy: insert_overwrite
+        
+        agg_hourly_activity:
+          +materialized: incremental
+          +unique_key: ["activity_date", "activity_hour"]
+          +on_schema_change: "append_new_columns"
+          +partition_by:
+            field: activity_date
+            data_type: date
+            granularity: day
+          +cluster_by: ["activity_date", "activity_hour"]
+          +incremental_strategy: insert_overwrite
+        
+        agg_user_summary:
+          +materialized: table
+
+# Seeds configuration
+seeds:
+  music_streaming_analytics:
+    +quote_columns: false
+
+# Snapshots configuration
+snapshots:
+  music_streaming_analytics:
+    +target_schema: snapshots
+    +unique_key: id
+    +strategy: timestamp
+    +updated_at: updated_at
+
+# Test configurations
+tests:
+  music_streaming_analytics:
+    +store_failures: true
+    +schema: dbt_test_failures
+
+# Variables
+vars:
+  # Time zones
+  timezone: 'UTC'
+  
+  # Session configuration
+  session_timeout_minutes: 30
+  
+  # Date ranges for development
+  start_date: '2025-01-01'
+  
+  # Incremental lookback (days to reprocess)
+  incremental_lookback_days: 3

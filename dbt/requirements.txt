@@ -1,0 +1,10 @@
+# dbt Installation Requirements
+
+# Core dbt package
+dbt-core==1.7.0
+
+# BigQuery adapter
+dbt-bigquery==1.7.0
+
+# Optional: for enhanced logging and debugging
+colorlog==6.7.0

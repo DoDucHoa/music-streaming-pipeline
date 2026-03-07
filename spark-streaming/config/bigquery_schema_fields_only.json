@@ -1,0 +1,164 @@
+[
+  {
+    "name": "event_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Unique identifier for each event"
+  },
+  {
+    "name": "session_id",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Session identifier"
+  },
+  {
+    "name": "userId",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User identifier"
+  },
+  {
+    "name": "firstName",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User first name"
+  },
+  {
+    "name": "lastName",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User last name"
+  },
+  {
+    "name": "gender",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User gender"
+  },
+  {
+    "name": "level",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Subscription level: free or paid"
+  },
+  {
+    "name": "auth",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Authentication status: Guest, Logged In, Logged Out, Cancelled"
+  },
+  {
+    "name": "registration",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "User registration timestamp"
+  },
+  {
+    "name": "page",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Page name: NextSong, Home, Login, Logout, etc."
+  },
+  {
+    "name": "method",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "HTTP method: GET, PUT, POST"
+  },
+  {
+    "name": "status",
+    "type": "INTEGER",
+    "mode": "NULLABLE",
+    "description": "HTTP status code"
+  },
+  {
+    "name": "artist",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Artist name (for NextSong events)"
+  },
+  {
+    "name": "song",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Song title (for NextSong events)"
+  },
+  {
+    "name": "length",
+    "type": "FLOAT",
+    "mode": "NULLABLE",
+    "description": "Song duration in seconds"
+  },
+  {
+    "name": "location",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User location"
+  },
+  {
+    "name": "city",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "City name"
+  },
+  {
+    "name": "state",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "State code"
+  },
+  {
+    "name": "zip",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "ZIP code"
+  },
+  {
+    "name": "lat",
+    "type": "FLOAT",
+    "mode": "NULLABLE",
+    "description": "Latitude"
+  },
+  {
+    "name": "lon",
+    "type": "FLOAT",
+    "mode": "NULLABLE",
+    "description": "Longitude"
+  },
+  {
+    "name": "userAgent",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "User agent string"
+  },
+  {
+    "name": "ts",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Event timestamp"
+  },
+  {
+    "name": "itemInSession",
+    "type": "INTEGER",
+    "mode": "NULLABLE",
+    "description": "Item number in current session"
+  },
+  {
+    "name": "processed_at",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "Processing timestamp"
+  },
+  {
+    "name": "processing_date",
+    "type": "DATE",
+    "mode": "NULLABLE",
+    "description": "Processing date for partitioning"
+  },
+  {
+    "name": "raw_event",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Raw event JSON for debugging"
+  }
+]
